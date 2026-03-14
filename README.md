@@ -1,4 +1,4 @@
-# 🚀 .NET Project Rebuild & Watch Wizard v2.0 🧙‍♂️
+# 🚀 .NET Project Rebuild & Watch Wizard v2.2 🧙‍♂️
 
 ## 🇹🇷 Türkçe Versiyon
 
