@@ -1,15 +1,13 @@
-# 🚀 .NET Project Rebuild & Watch Wizard v2.2 🧙‍♂️
+# 🚀 .NET Project Rebuild & Watch Wizard v2.0 🧙‍♂️
 
 ## 🇹🇷 Türkçe Versiyon
 
-.NET projelerini geliştirirken terminalde vakit kaybetmek, asılı kalan (zombie) portlarla uğraşmak veya hatalı kodun sonsuz döngüye girmesi tam bir kabusa dönüşebilir. Bu gelişmiş ve akıllı sihirbaz, projelerinizi otomatik olarak bulur, portlarınızı temizler, projeyi güvenle derler ve tek bir dokunuşla izleme moduna (`watch`) alır.
+.NET projelerini geliştirirken terminalde vakit kaybetmek bazen tam bir kabusa dönüşebilir. Bu gelişmiş ve akıllı sihirbaz, projelerinizi otomatik olarak bulur, listeler ve tek bir dokunuşla `rebuild` ederek izleme moduna (`watch`) alır.
 
 ### ✨ Özellikler
 
-* **🔥 Akıllı Port Temizliği (Zombie Process Killer):** Projenizin `launchSettings.json` dosyasını okur, projeye ait meşgul portları tespit edip "Port already in use" hatasını önlemek için sadece ilgili işlemleri güvenle temizler.
-* **🛡️ Güvenli Başlatma (Safe Boot):** `watch` moduna geçmeden önce projeyi `dotnet build` ile test edip derler. Eğer kodda hata varsa işlemi durdurarak sonsuz döngü/hata spam'ini engeller.
 * **🌍 Otomatik Dil Desteği:** Sistem dilinizi algılar. Türkçe sistemlerde Türkçe, diğer tüm dillerde otomatik olarak İngilizce çalışır.
-* **🧙‍♂️ Sihirbaz Arayüzü:** İşlemleri adım adım (Temizlik > Derleme > Başlatma) gösteren, modern ve temiz "Boxed" (kutulu) bir terminal arayüzü sunar.
+* **🧙‍♂️ Sihirbaz Arayüzü:** İşlemleri adım adım gösteren, modern ve temiz "Boxed" (kutulu) bir terminal arayüzü sunar.
 * **📂 Akıllı Proje Listeleme:** `Documents/GitHub` altındaki projelerinizi otomatik olarak tarar ve numaralandırılmış bir liste sunar.
 * **🗺️ İnteraktif Gezinme:** Ana projenizi seçtikten sonra alt klasörlerini (UI, API vb.) listeler; tam olarak doğru dizinde çalışmanızı sağlar.
 * **🧠 Akıllı Hafıza (Persistence):** En son çalıştığınız proje yolunu hatırlar ve bir sonraki açılışta hızlı erişim için size sorar.
@@ -22,7 +20,7 @@
 **🍎 macOS:**
 
 ```bash
-curl -L -o ~/Desktop/"macOs Rebuild And Add Watch A Dotnet Project.command" "[https://raw.githubusercontent.com/muroshow/RebuildAndAddWatchADotnetProject/main/macOs%20Rebuild%20And%20Add%20Watch%20A%20Dotnet%20Project.command?v=1](https://raw.githubusercontent.com/muroshow/RebuildAndAddWatchADotnetProject/main/macOs%20Rebuild%20And%20Add%20Watch%20A%20Dotnet%20Project.command?v=1)" && chmod +x ~/Desktop/"macOs Rebuild And Add Watch A Dotnet Project.command"
+curl -L -o ~/Desktop/"macOs Rebuild And Add Watch A Dotnet Project.command" "https://raw.githubusercontent.com/muroshow/RebuildAndAddWatchADotnetProject/main/macOs%20Rebuild%20And%20Add%20Watch%20A%20Dotnet%20Project.command?v=1" && chmod +x ~/Desktop/"macOs Rebuild And Add Watch A Dotnet Project.command"
 
 ```
 
@@ -30,14 +28,12 @@ curl -L -o ~/Desktop/"macOs Rebuild And Add Watch A Dotnet Project.command" "[ht
 
 ## 🇺🇸 English Version
 
-Manually stopping, killing zombie ports, rebuilding, and running the `watch` command for .NET projects can be a hassle. This advanced and smart wizard automatically locates your projects, cleans your ports, builds the project safely, and starts `watch` mode within seconds.
+Manually stopping, rebuilding, and running the `watch` command for .NET projects can be a hassle. This advanced and smart wizard automatically locates, lists, and starts your projects with a clean `rebuild` and `watch` mode within seconds.
 
 ### ✨ Features
 
-* **🔥 Smart Port Cleaning (Zombie Process Killer):** Reads your project's `launchSettings.json`, detects occupied ports specific to your project, and safely kills hanging processes to prevent "Port already in use" errors.
-* **🛡️ Safe Boot (Pre-Watch Build Check):** Compiles the project using `dotnet build` before entering `watch` mode. If the code has syntax errors or missing packages, it gracefully stops the process to prevent infinite error loops.
 * **🌍 Automatic Language Support:** Detects your system language. Runs in Turkish for Turkish systems and defaults to English for all other languages.
-* **🧙‍♂️ Wizard Interface:** Provides a modern and clean "Boxed" terminal UI that shows the process step-by-step (Clean > Build > Run).
+* **🧙‍♂️ Wizard Interface:** Provides a modern and clean "Boxed" terminal UI that shows the process step-by-step.
 * **📂 Smart Project Listing:** Automatically scans `Documents/GitHub` and provides a numbered list of your projects.
 * **🗺️ Interactive Navigation:** After selecting a main project, it lists its sub-folders (UI, API, etc.), ensuring you run in the exact directory.
 * **🧠 Smart Memory (Persistence):** Remembers your last project path and asks if you'd like to resume on the next start.
@@ -50,7 +46,7 @@ Manually stopping, killing zombie ports, rebuilding, and running the `watch` com
 **🍎 macOS:**
 
 ```bash
-curl -L -o ~/Desktop/"macOs Rebuild And Add Watch A Dotnet Project.command" "[https://raw.githubusercontent.com/muroshow/RebuildAndAddWatchADotnetProject/main/macOs%20Rebuild%20And%20Add%20Watch%20A%20Dotnet%20Project.command?v=1](https://raw.githubusercontent.com/muroshow/RebuildAndAddWatchADotnetProject/main/macOs%20Rebuild%20And%20Add%20Watch%20A%20Dotnet%20Project.command?v=1)" && chmod +x ~/Desktop/"macOs Rebuild And Add Watch A Dotnet Project.command"
+curl -L -o ~/Desktop/"macOs Rebuild And Add Watch A Dotnet Project.command" "https://raw.githubusercontent.com/muroshow/RebuildAndAddWatchADotnetProject/main/macOs%20Rebuild%20And%20Add%20Watch%20A%20Dotnet%20Project.command?v=1" && chmod +x ~/Desktop/"macOs Rebuild And Add Watch A Dotnet Project.command"
 
 ```
 
@@ -58,8 +54,9 @@ curl -L -o ~/Desktop/"macOs Rebuild And Add Watch A Dotnet Project.command" "[ht
 
 ## 🛠️ Developer & Contact
 
-**Muharrem AKTAS** 🔗 **Github:** [muroshow](https://github.com/muroshow/)
-🔗 **LinkedIn:** [muharremaktas](https://www.linkedin.com/in/muharremaktas/)
+**Muharrem AKTAS** 🔗 **Github:** [muroshow](https://github.com/muroshow/) 
+
+🔗 **LinkedIn:** [muharremaktas](https://www.linkedin.com/in/muharremaktas/) 
 
 ## 📜 License
 
