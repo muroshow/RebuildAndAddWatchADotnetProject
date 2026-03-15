@@ -7,13 +7,14 @@ GITHUB_ROOT="$HOME/Documents/GitHub"
 # --- RENKLER VE STİLLER ---
 BG_CYAN='\033[46;30m'
 BG_GREEN='\033[42;30m'
+BG_RED='\033[41;37m'
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 MAGENTA='\033[0;35m'
 WHITE='\033[1;37m'
 GRAY='\033[0;90m'
-RED='\033[0;31m'
+RED='\033[1;31m'
 BOLD='\033[1m'
 NC='\033[0m'
 
@@ -21,7 +22,7 @@ NC='\033[0m'
 draw_header() {
     clear
     echo -e "${CYAN}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${NC}"
-    echo -e "${CYAN}┃${NC}  ${BOLD}${WHITE}🧙‍♂️ .NET PROJECT WIZARD v2.2${NC}                 ${CYAN}┃${NC}"
+    echo -e "${CYAN}┃${NC}  ${BOLD}${WHITE}🧙‍♂️ .NET PROJECT WIZARD v2.4${NC}                 ${CYAN}┃${NC}"
     echo -e "${CYAN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${NC}"
     [[ -n "$1" ]] && echo -e "  ${GRAY}📂 Konum: ${NC}${MAGENTA}$1${NC}\n"
 }
@@ -40,7 +41,7 @@ if [[ "$LANG" == tr* ]]; then
     L_CLEANING="Projenin portları kontrol ediliyor ve temizleniyor..."
     L_PREPARING="Proje derleniyor (Bağımlılıklar yükleniyor)..."
     L_READY="Proje hazır! İzleme (Watch) moduna geçiliyor..."
-    L_BUILD_ERR="Derleme hatası! Proje ayağa kalkamadığı için işlem durduruldu."
+    L_BUILD_ERR="Derleme Hatası! Proje ayağa kalkamadı."
     L_ERROR="HATA: Klasör bulunamadı!"
     L_EXIT="Çıkmak için Enter'a basın..."
 else
@@ -128,13 +129,11 @@ if [ -d "$PROJECT_PATH" ]; then
     echo -e "${BG_CYAN} ADIM 1 ${NC} ${CYAN}$L_CLEANING${NC}"
     echo -e "${GRAY}--------------------------------------------------------${NC}"
     
-    # launchSettings.json içindeki portları regex ile ayıkla
     if [ -f "Properties/launchSettings.json" ]; then
         PORTS=$(grep -oE '(localhost|127\.0\.0\.1):[0-9]+' Properties/launchSettings.json 2>/dev/null | cut -d':' -f2 | sort -u)
         
         if [ -n "$PORTS" ]; then
             for PORT in $(echo $PORTS); do
-                # İlgili portu meşgul eden PID'yi bul (macOS uyumlu lsof komutu)
                 PID=$(lsof -ti:$PORT 2>/dev/null)
                 if [ -n "$PID" ]; then
                     echo -e "  ${YELLOW}⚠️ Port $PORT kullanımda (PID: $PID). Zorla kapatılıyor...${NC}"
@@ -158,7 +157,12 @@ if [ -d "$PROJECT_PATH" ]; then
     echo -e "${BG_CYAN} ADIM 2 ${NC} ${CYAN}$L_PREPARING${NC}"
     echo -e "${GRAY}--------------------------------------------------------${NC}"
     
-    if dotnet build; then
+    # Build çıktısını ve durumunu yakala
+    BUILD_LOG=$(dotnet build 2>&1)
+    BUILD_STATUS=$?
+    
+    if [ $BUILD_STATUS -eq 0 ]; then
+        echo -e "  ${GREEN}✓ Derleme başarılı.${NC}"
         
         # ---------------------------------------------------------
         # ADIM 3: İZLEME (WATCH) MODU
@@ -168,8 +172,18 @@ if [ -d "$PROJECT_PATH" ]; then
         dotnet watch run
         
     else
-        # Eğer kodlarda hata varsa ayağa kalkamaz ve buraya düşer
-        echo -e "\n${RED}❌ $L_BUILD_ERR${NC}"
+        # Hata varsa buraya düşer
+        echo -e "\n${BG_RED} $L_BUILD_ERR ${NC}"
+        echo -e "${GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        
+        # LOG FİLTRESİ: Uyarıları gizle, hataları KIRMIZI yap
+        echo "$BUILD_LOG" | awk '
+        tolower($0) ~ /error|hata|başarısız|failed/ { print "\033[1;31m" $0 "\033[0m"; next }
+        tolower($0) ~ /warning|uyarı/ { next } # Uyarıları tamamen gizler
+        { print "\033[0;90m" $0 "\033[0m" } # Kalan standart loglar gri kalır
+        '
+        
+        echo -e "${GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     fi
 
 else
