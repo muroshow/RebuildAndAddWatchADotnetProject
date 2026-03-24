@@ -7,6 +7,7 @@ GITHUB_ROOT="$HOME/Documents/GitHub"
 # --- RENKLER VE STİLLER ---
 BG_CYAN='\033[46;30m'
 BG_GREEN='\033[42;30m'
+BG_MAGENTA='\033[45;37m'
 BG_RED='\033[41;37m'
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
@@ -22,7 +23,7 @@ NC='\033[0m'
 draw_header() {
     clear
     echo -e "${CYAN}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${NC}"
-    echo -e "${CYAN}┃${NC}  ${BOLD}${WHITE}🧙‍♂️ .NET PROJECT WIZARD v2.4${NC}                 ${CYAN}┃${NC}"
+    echo -e "${CYAN}┃${NC}  ${BOLD}${WHITE}🧙‍♂️ .NET PROJECT WIZARD v2.6${NC}                 ${CYAN}┃${NC}"
     echo -e "${CYAN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${NC}"
     [[ -n "$1" ]] && echo -e "  ${GRAY}📂 Konum: ${NC}${MAGENTA}$1${NC}\n"
 }
@@ -41,6 +42,7 @@ if [[ "$LANG" == tr* ]]; then
     L_CLEANING="Projenin portları kontrol ediliyor ve temizleniyor..."
     L_PREPARING="Proje derleniyor (Bağımlılıklar yükleniyor)..."
     L_READY="Proje hazır! İzleme (Watch) moduna geçiliyor..."
+    L_URLS="🚀 Proje şu adreslerde ayağa kalkacak:"
     L_BUILD_ERR="Derleme Hatası! Proje ayağa kalkamadı."
     L_ERROR="HATA: Klasör bulunamadı!"
     L_EXIT="Çıkmak için Enter'a basın..."
@@ -53,6 +55,7 @@ else
     L_CLEANING="Checking and cleaning project ports..."
     L_PREPARING="Building project (Restoring dependencies)..."
     L_READY="Project is ready! Starting watch mode..."
+    L_URLS="🚀 Project will be available at:"
     L_BUILD_ERR="Build failed! Process stopped."
     L_ERROR="ERROR: Directory not found!"
     L_EXIT="Press Enter to exit..."
@@ -66,7 +69,7 @@ PROJECT_PATH=""
 if [ -f "$CONFIG_FILE" ]; then
     LAST_PATH=$(cat "$CONFIG_FILE")
     echo -e "  ${YELLOW}📍 $L_LAST_PATH${NC}"
-    echo -e "     ${GRAY}$LAST_PATH${NC}"
+    echo -e "      ${GRAY}$LAST_PATH${NC}"
     echo -n -e "\n  ${BOLD}(y/n):${NC} "
     read USE_LAST
     case "$USE_LAST" in
@@ -81,7 +84,6 @@ if [ -z "$PROJECT_PATH" ]; then
         echo -n -e "  ${WHITE}Lütfen yolu buraya sürükleyin:${NC} "
         read PROJECT_PATH
     else
-        # 1. Seviye: Ana Projeler
         draw_header "GitHub"
         echo -e "  ${BOLD}${CYAN}▼ $L_SELECT_PROJ${NC}"
         cd "$GITHUB_ROOT"
@@ -95,7 +97,6 @@ if [ -z "$PROJECT_PATH" ]; then
         read P_IDX
         SELECTED_PROJ="${projects[$P_IDX]}"
         
-        # 2. Seviye: Alt Klasörler
         draw_header "GitHub > $SELECTED_PROJ"
         echo -e "  ${BOLD}${CYAN}▼ $L_SELECT_SUB${NC}"
         cd "$GITHUB_ROOT/$SELECTED_PROJ"
@@ -124,65 +125,72 @@ if [ -d "$PROJECT_PATH" ]; then
     cd "$PROJECT_PATH"
     
     # ---------------------------------------------------------
-    # ADIM 1: PORT TEMİZLİĞİ (ZOMBIE PROCESS KILLER)
+    # ADIM 1: GELİŞMİŞ PORT TEMİZLİĞİ
     # ---------------------------------------------------------
     echo -e "${BG_CYAN} ADIM 1 ${NC} ${CYAN}$L_CLEANING${NC}"
     echo -e "${GRAY}--------------------------------------------------------${NC}"
     
-    if [ -f "Properties/launchSettings.json" ]; then
-        PORTS=$(grep -oE '(localhost|127\.0\.0\.1):[0-9]+' Properties/launchSettings.json 2>/dev/null | cut -d':' -f2 | sort -u)
+    LAUNCH_SETTINGS="Properties/launchSettings.json"
+    if [ -f "$LAUNCH_SETTINGS" ]; then
+        PORTS=$(grep -oE '(localhost|127\.0\.0\.1):[0-9]+' "$LAUNCH_SETTINGS" 2>/dev/null | cut -d':' -f2 | sort -u)
         
         if [ -n "$PORTS" ]; then
             for PORT in $(echo $PORTS); do
-                PID=$(lsof -ti:$PORT 2>/dev/null)
-                if [ -n "$PID" ]; then
-                    echo -e "  ${YELLOW}⚠️ Port $PORT kullanımda (PID: $PID). Zorla kapatılıyor...${NC}"
-                    kill -9 $PID 2>/dev/null
+                # Tüm PID'leri dizi olarak al
+                PIDS=($(lsof -ti:$PORT 2>/dev/null))
+                
+                if [ ${#PIDS[@]} -gt 0 ]; then
+                    echo -e "  ${YELLOW}⚠️ Port $PORT kullanımda (${#PIDS[@]} process). Temizleniyor...${NC}"
+                    for pid in "${PIDS[@]}"; do
+                        kill -9 $pid 2>/dev/null
+                    done
+                    # OS'in portu tamamen serbest bırakması için kısa bir es
+                    sleep 1 
                     echo -e "  ${GREEN}✓ Port $PORT başarıyla temizlendi.${NC}"
                 else
                     echo -e "  ${GRAY}✓ Port $PORT zaten boş.${NC}"
                 fi
             done
-        else
-             echo -e "  ${GRAY}ℹ️ launchSettings.json içinde özel bir port tanımlanmamış.${NC}"
         fi
-    else
-        echo -e "  ${GRAY}ℹ️ Properties/launchSettings.json bulunamadı. Temizlik atlandı.${NC}"
     fi
     echo ""
 
-    # ---------------------------------------------------------
-    # ADIM 2: DERLEME VE AYAĞA KALDIRMA KONTROLÜ
-    # ---------------------------------------------------------
+    # ADIM 2: DERLEME
     echo -e "${BG_CYAN} ADIM 2 ${NC} ${CYAN}$L_PREPARING${NC}"
     echo -e "${GRAY}--------------------------------------------------------${NC}"
     
-    # Build çıktısını ve durumunu yakala
     BUILD_LOG=$(dotnet build 2>&1)
     BUILD_STATUS=$?
     
     if [ $BUILD_STATUS -eq 0 ]; then
         echo -e "  ${GREEN}✓ Derleme başarılı.${NC}"
         
-        # ---------------------------------------------------------
-        # ADIM 3: İZLEME (WATCH) MODU
-        # ---------------------------------------------------------
+        # ADIM 3: İZLEME (WATCH)
         echo -e "\n${BG_GREEN} ADIM 3 ${NC} ${GREEN}$L_READY${NC}"
-        echo -e "${GRAY}--------------------------------------------------------${NC}\n"
+        echo -e "${GRAY}--------------------------------------------------------${NC}"
+
+        if [ -f "$LAUNCH_SETTINGS" ]; then
+            APP_URLS=$(grep "applicationUrl" "$LAUNCH_SETTINGS" | sed -E 's/.*"applicationUrl": "(.*)".*/\1/' | tr ';' '\n' | sort -u)
+            if [ -n "$APP_URLS" ]; then
+                echo -e "  ${BOLD}${MAGENTA}$L_URLS${NC}"
+                while read -r url; do
+                    echo -e "  ${CYAN}➜ ${NC}${WHITE}${BOLD}$url${NC}"
+                done <<< "$APP_URLS"
+                echo -e "${GRAY}--------------------------------------------------------${NC}\n"
+            fi
+        fi
+
         dotnet watch run
         
     else
-        # Hata varsa buraya düşer
+        # Hata Yönetimi
         echo -e "\n${BG_RED} $L_BUILD_ERR ${NC}"
         echo -e "${GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        
-        # LOG FİLTRESİ: Uyarıları gizle, hataları KIRMIZI yap
         echo "$BUILD_LOG" | awk '
         tolower($0) ~ /error|hata|başarısız|failed/ { print "\033[1;31m" $0 "\033[0m"; next }
-        tolower($0) ~ /warning|uyarı/ { next } # Uyarıları tamamen gizler
-        { print "\033[0;90m" $0 "\033[0m" } # Kalan standart loglar gri kalır
+        tolower($0) ~ /warning|uyarı/ { next }
+        { print "\033[0;90m" $0 "\033[0m" }
         '
-        
         echo -e "${GRAY}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     fi
 
