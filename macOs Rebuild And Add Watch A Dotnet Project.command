@@ -180,7 +180,7 @@ if [ -d "$PROJECT_PATH" ]; then
             fi
         fi
 
-        dotnet watch run
+        DOTNET_WATCH_SUPPRESS_STATIC_FILE_HANDLING=true dotnet watch run
         
     else
         # Hata Yönetimi
